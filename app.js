@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root', // Substitua pelo seu usuário do MySQL
-    password: '', // Substitua pela sua senha do MySQL
+    password: 'cimatec', // Substitua pela sua senha do MySQL
     database: 'leads', // Nome do seu banco de dados
 });
 
@@ -76,6 +76,12 @@ app.delete('/delete/:id', (req, res) => {
         }
         res.json({ message: 'Dados deletados com sucesso!' });
     });
+});
+
+// Middleware de tratamento de erros
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Algo deu errado!');
 });
 
 app.listen(port, () => {
