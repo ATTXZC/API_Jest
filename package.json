@@ -1,0 +1,22 @@
+{
+  "name": "leads",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "mysql": "^2.18.1",
+    "supertest": "^7.0.0"
+  },
+  "description": "",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

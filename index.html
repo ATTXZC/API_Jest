@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Contato</title>
+</head>                                                                                         
+<body>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #3e8fd5;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-top: 5%;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+        .container h2 {
+            margin-bottom: 20px;
+        }
+        .container input[type="text"],
+        .container input[type="email"],
+        .container input[type="tel"],
+        .container button {
+            width: 80%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .container button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+        .container button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th{
+            color: #000000;
+            
+            background-color: #4CAF50;
+            text-align: center;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        tr:nth-child(odd) {
+            background-color: #f2f2f2; /* Cor para linhas ímpares */
+        }
+        tr:nth-child(even) {
+            background-color: #ffffff; /* Cor para linhas pares (opcional) */
+        }
+        
+    </style>
+    <div class="container">
+        <h2>Formulário de Contato</h2>
+        <form id="contactForm">
+            <input type="text" name="nome" placeholder="Nome" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="tel" name="telefone" placeholder="Telefone" required>
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+
+    <table>
+        <thead>
+            <tr>                
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="dataTable">
+        </tbody>
+    </table>
+
+    <script>
+        // Função para buscar os dados e preencher a tabela
+        function fetchData() {
+            fetch('/getData')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('dataTable');
+                    tableBody.innerHTML = '';
+                    data.forEach(row => {
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td contenteditable="true">${row.nome}</td>
+                                <td contenteditable="true">${row.email}</td>
+                                <td contenteditable="true">${row.telefone}</td>
+                                <td>
+                                    <button class="icon-button" onclick="deleteData(${row.id})">🗑️</button>
+                                    <button class="icon-button" onclick="updateData(${row.id})">✏️</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                });
+        }
+
+        // Função para deletar um dado
+        function deleteData(id) {
+            fetch(`/delete/${id}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    fetchData();
+                });
+        }
+
+        // Função para atualizar um dado
+        function updateData(id) {
+            const row = document.querySelector(`button[onclick="updateData(${id})"]`).parentNode.parentNode;
+            const nome = row.cells[0].textContent;
+            const email = row.cells[1].textContent;
+            const telefone = row.cells[2].textContent;
+            fetch(`/update/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nome, email, telefone })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    fetchData();
+                });
+        }
+
+        // Função para inserir um dado e atualizar a tabela imediatamente
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            fetch('/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    fetchData();
+                });
+        });
+
+        // Carregar os dados quando a página é carregada
+        window.onload = fetchData;
+    </script>
+</body>
+</html>
